@@ -172,7 +172,9 @@ module.exports = {
     },
     //This method is called when the service is instantiated, connect to the database in this method 
     created() {
-        mongoose.connect(`mongodb://${process.env.DBNAME | "localhost"}:${process.env.PORT | 27017}/webhookdb`, { useNewUrlParser: true }, (err) => {
+        var dbname = process.env.DBNAME;
+        if (!dbname) dbname = "localhost";
+        mongoose.connect(`mongodb://${dbname}:${process.env.PORT | 27017}/webhookdb`, { useNewUrlParser: true }, (err) => {
             if (err) {
                 console.log(err);
             }
