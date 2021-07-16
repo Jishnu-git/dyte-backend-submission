@@ -9,6 +9,7 @@ services:
         environment: 
             NODEID: "node-webhooks"
             SERVICES: webhooks 
+            DBNAME: mongodb
             PORT: 27017
         depends_on:
             - mongodb
