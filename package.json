@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A submission for Dyte placement task",
   "scripts": {
-    "start": "moleculer-runner",
+    "start": "moleculer-runner services/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,8 +23,11 @@
   },
   "homepage": "https://github.com/Jishnu-git/dyte-backend-submission#readme",
   "dependencies": {
+    "amqplib": "^0.8.0",
     "express": "^4.17.1",
     "moleculer": "^0.14.15",
-    "mongoose": "^5.13.2"
+    "mongoose": "^5.13.2",
+    "superagent": "^6.1.0",
+    "uuid": "^8.3.2"
   }
 }
