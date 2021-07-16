@@ -15,87 +15,73 @@ module.exports = {
             this.app.put("/admin/update", this.updateURL);
             this.app.delete("/admin/delete/:id", this.deleteURL);
             this.app.get("/ip/", this.triggerWebhooks);
+
+            this.app.post("/testing", this.testTrigger);
         },
 
-        registerURL(req, res) {
-            return new Promise((resolve) => {
-                const targetUrl = req.body.targetUrl;
-                try {
-                    const errorCheck = new URL(targetUrl);
-                } catch (err) {
-                    res.status(500).send(err.message);
-                    throw err;
-                }
-                
-                this.broker.call("webhooks.register", {targetUrl: targetUrl}).then((ID) => {
-                    res.send(ID);
-                    resolve();
-                }).catch((err) => {
-                    res.status(500).send(err.message);
-                    throw err;
-                })
+        async registerURL(req, res) {
+            const targetUrl = req.body.targetUrl;
+            try {
+                const errorCheck = new URL(targetUrl);
+            } catch (err) {
+                res.status(500).send(err.message);
+                return;
+            }
+            
+            this.broker.call("webhooks.register", {targetUrl: targetUrl}).then((ID) => {
+                res.send(ID);
+            }).catch((err) => {
+                res.status(500).send(err.message);
             })
         },
 
-        listAll(req, res) {
-            return new Promise((resolve) => {
-                this.broker.call("webhooks.list").then((webhooks) => {
-                    res.json(webhooks);
-                    resolve();
-                }).catch((err) => {
-                    res.status(500).send(err.message);
-                    throw err;
-                });
+        async listAll(req, res) {
+            this.broker.call("webhooks.list").then((webhooks) => {
+                res.json(webhooks);
+            }).catch((err) => {
+                res.status(500).send(err.message);
             });
         },
 
-        updateURL(req, res) {
-            return new Promise((resolve) => {
-                const id = req.body.ID;
-                const newTargetUrl = req.body.newTargetUrl;
-                try {
-                    const errorCheck = new URL(newTargetUrl);
-                } catch (err) {
-                    res.status(500).send(err.message);
-                    throw err;
-                }
-                
-                this.broker.call("webhooks.update", {id: id, newTargetUrl: newTargetUrl}).then(() => {
-                    res.send();
-                    resolve();
-                }).catch((err) => {
-                    res.status(500).send(err.message);
-                    throw err;
-                })
+        async updateURL(req, res) {
+            const id = req.body.ID;
+            const newTargetUrl = req.body.newTargetUrl;
+            try {
+                const errorCheck = new URL(newTargetUrl);
+            } catch (err) {
+                res.status(500).send(err.message);
+                return;
+            }
+            
+            this.broker.call("webhooks.update", {id: id, newTargetUrl: newTargetUrl}).then(() => {
+                res.send();
+            }).catch((err) => {
+                res.status(500).send(err.message);
+            })
+        },
+
+        async deleteURL(req, res) {
+            const id = req.params.id;
+            this.broker.call("webhooks.delete", {id: id}).then(() => {
+                res.send();
+            }).catch((err) => {
+                res.status(500).send(err.message);
+            });
+        
+        },
+
+        async triggerWebhooks(req, res) {
+            const ipAddress = req.ip;
+            this.broker.call("webhooks.trigger", {ipAddress: ipAddress}).then(() => {
+                res.send();
+            }).catch((err) => {
+                res.status(500).send(err.message);
             });
         },
 
-        deleteURL(req, res) {
-            return new Promise((resolve) => {
-                const id = req.params.id;
-                this.broker.call("webhooks.delete", {id: id}).then(() => {
-                    res.send();
-                    resolve();
-                }).catch((err) => {
-                    res.status(500).send(err.message);
-                    throw err;
-                });
-            })
-            
-        },
-
-        triggerWebhooks(req, res) {
-            return new Promise((resolve) => {
-                const ipAddress = req.ip;
-                this.broker.call("webhooks.trigger", {ipAddress: ipAddress}).then(() => {
-                    res.send();
-                    resolve();
-                }).catch((err) => {
-                    res.status(500).send(err.message);
-                    throw err;
-                });
-            })
-            
+        async testTrigger(req, res) {
+            console.log(req.body);
+            res.json(req.body);
         }
     },
 
