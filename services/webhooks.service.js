@@ -134,7 +134,7 @@ module.exports = {
     methods: {
         //Helper function for sending post request to a given list of webhooks with the supplied ip address as the body
         async sendPostReq(webhooks, ipAddress) {
-            //Iterate over all the webhooks in the list, which can be atmost 20 webhooks
+            //Iterate over all the webhooks in the list
             for (const webhook of webhooks) {
                 //Call the helper function to post the ip address along with the unix time to each webhook's target URL
                 await this.tryPost(webhook.targetUrl, ipAddress, 0);
