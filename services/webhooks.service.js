@@ -89,14 +89,15 @@ module.exports = {
                 return new Promise((resolve) => {
                     //Firstly, fetch all the webhooks
                     WebhookModel.find().then((webhooks) => {
-                        //Next we divide them into batches of 20
+                        //Next we divide them into 10 batches
+                        const batchSize = Math.ceil(webhooks.length / 10);
                         let start = 0;
                         while (start < webhooks.length) {
-                            const webhooksPartition = webhooks.slice(start, start + 20);
-                            this.sendPostReq(webhooksPartition, ctx.params.ipAddress); //Call the helper method to send post requests for this batch of 20 webhook targets
-                            start += 20; //Increment the batch starting by 20
+                            const webhooksPartition = webhooks.slice(start, start + batchSize);
+                            this.sendPostReq(webhooksPartition, ctx.params.ipAddress); //Call the helper method to send post requests for these 10 batches of webhook targets
+                            start += batchSize; //Increment the batch starting by the batch size
                         } //This loop will run until start exceeds the total number of webhooks registered
-                        //Note that since sendPostReq is an asynchronous function, the server does not wait for each batch to be completed, and all the batches of 20 will be sent out in parallel
+                        //Note that since sendPostReq is an asynchronous function, the server does not wait for each batch to be completed, and all the 10 batches will be sent out in parallel - this limits the number of parallel requests to 10
                         resolve();
                     }).catch((err) => { //If some error is encountered, it will not be from the post requests as those exceptions are not elevated
                         throw err; //Therefore, it must be an unknown server error, raise it to the higher level
@@ -136,8 +137,9 @@ module.exports = {
             //Iterate over all the webhooks in the list, which can be atmost 20 webhooks
             for (const webhook of webhooks) {
                 //Call the helper function to post the ip address along with the unix time to each webhook's target URL
-                this.tryPost(webhook.targetUrl, ipAddress, 0);
+                await this.tryPost(webhook.targetUrl, ipAddress, 0);
                 //This helper function is asynchronous, so this function will keep iterating over the webhooks without waiting for the previous one to finish
+                //This would change our maximum concurrent requests from being 10, so we await the result of the function and make it a synchronous call
             }
         },
 
