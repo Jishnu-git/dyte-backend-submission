@@ -5,8 +5,10 @@ services:
 
     webhooks:
         build: .
-        env_file: .env
         environment: 
+            LOGLEVEL: info
+            SERVICEDIR: services
+            TRANSPORTER: amqp://rabbitmq:5672
             NODEID: "node-webhooks"
             SERVICES: webhooks 
             DBNAME: mongodb
@@ -17,8 +19,10 @@ services:
     
     backend:
         build: .
-        env_file: .env
         environment: 
+            LOGLEVEL: info
+            SERVICEDIR: services
+            TRANSPORTER: amqp://rabbitmq:5672
             NODEID: "node-backend"
             SERVICES: backend
             PORT: 3000
